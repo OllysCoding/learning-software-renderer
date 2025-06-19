@@ -1,51 +1,48 @@
-﻿// See https://aka.ms/new-console-template for more information
-
+﻿
 using System.Diagnostics;
+using Raylib_cs;
 using SoftwareRenderer;
+using Float3 = SoftwareRenderer.Float3;
+using Model = SoftwareRenderer.Model;
 
-Console.WriteLine("Hello, World!");
+var width = 500;
+var height = 500;
+var renderer = new Renderer(width, height);
+var scene = new Scene(width, height);
+// scene.AddModel(Model.ReadFromObjFile("../../../../resources/diablo3_pose.obj"));
 
-var model = Model.readFromObjFile("/Users/olly/Downloads/diablo3_pose.obj");
+Raylib.InitWindow(width, height, "Renderer");
+Texture2D texture = Raylib.LoadTextureFromImage(Raylib.GenImageColor(width, height, Color.Black));
+byte[] textureBytes = new byte[width * height * 4]; // RGBA
 
-Console.WriteLine($"Number of vertices: {model.vertices.Length}");
-Console.WriteLine($"Number of faces: {model.faceVertices.Length}");
+var timer = new Stopwatch();
+long lastFrameTime = 0; // TODO: Debounce
 
-// Image.CreateTestImage();
+while (!Raylib.WindowShouldClose())
+{
+    timer.Start();
+    
+    renderer.RenderScene(scene);
+    renderer.DrawTriangle(new Float3(7, 45, 0), new Float3(35, 100, 0), new Float3(45, 60, 0), Pixel.Random());
+    renderer.DrawTriangle(new Float3(120, 35, 0), new Float3(90, 5, 0), new Float3(45, 110, 0), Pixel.Random());
+    renderer.DrawTriangle(new Float3(115, 83, 0), new Float3(80, 90, 0), new Float3(85, 120, 0), Pixel.Random());
+    renderer.WriteToByteArray(textureBytes);
+    
+    Raylib.UpdateTexture(texture, textureBytes);
+    Raylib.BeginDrawing();
+    Raylib.DrawTexture(texture, 0, 0, Color.White);
+    var realFps = lastFrameTime == 0 ? "?" : (1000 / lastFrameTime).ToString();
+    Raylib.DrawText($"{realFps}fps", 15, 15, 15, Color.White);
+    
+    Raylib.EndDrawing();
+    
+    timer.Stop();
+    lastFrameTime = timer.ElapsedMilliseconds;
+    Console.WriteLine($"Rendered frame in {timer.ElapsedMilliseconds}ms");
+    timer.Reset();
+}
 
-// var image = Image.NewBlank(64, 64);
-
-// Float3 a = new Float3(7, 3, 0);
-// Float3 b = new Float3(12, 37, 0);
-// Float3 c = new Float3(62, 53, 0);
-
-// Image.DrawLine(a, b, image, Pixel.Blue());
-// Image.DrawLine(c, b, image, Pixel.Green());
-// Image.DrawLine(c, a, image, Pixel.Yellow());
-// Image.DrawLine(a, c, image, Pixel.Red());
-//
-// image[(int)a.X, (int)a.Y] = Pixel.White(); 
-// image[(int)b.X, (int)b.Y] = Pixel.White(); 
-// image[(int)c.X, (int)c.Y] = Pixel.White(); 
-
-// Stopwatch sw = new Stopwatch();
-//
-// sw.Start();
-//
-// Random random = new Random();
-// for (int i=0; i<(1<<24); i++)
-// {
-//     var a = new Float3(random.Next(0, 64), random.Next(0, 64), 0);
-//     var b = new Float3(random.Next(0, 64), random.Next(0, 64), 0);
-//     var color = new Pixel((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
-//     Image.DrawLine(a, b, image, color);
-// }
-//
-// sw.Stop();
-//
-// Console.WriteLine("Elapsed={0}",sw.Elapsed);
-//
-// Image.WriteToFile(image, "triangle.bmp");
-
+Raylib.CloseWindow();
 
 
 

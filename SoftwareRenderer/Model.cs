@@ -1,18 +1,26 @@
 namespace SoftwareRenderer;
 
-public class Model
+public class Model(Float3[] vertices, Tuple<int, int, int>[] faceVertices)
 {
-    public Float3[] vertices;
-    public Tuple<int, int, int>[] faceVertices;
-    
-    public Model(Float3[] vertices, Tuple<int, int, int>[] faceVertices)
+    public readonly Float3[] Vertices = vertices;
+    public readonly Tuple<int, int, int>[] FaceVertices = faceVertices;
+
+    public Tuple<Float3, Float3, Float3>[] GetTriangles()
     {
-        this.vertices = vertices;
-        this.faceVertices = faceVertices;
+        var triangles = new Tuple<Float3, Float3, Float3>[FaceVertices.Length];
+        for (int i = 0; i < FaceVertices.Length; i++)
+        {
+            triangles[i] = new(
+                (Vertices[FaceVertices[i].Item1] + 1),
+                (Vertices[FaceVertices[i].Item2] + 1),
+                (Vertices[FaceVertices[i].Item3] + 1)
+            );
+        }
+
+        return triangles;
     }
     
-    
-    public static Model readFromObjFile(String path)
+    public static Model ReadFromObjFile(String path)
     {
   
         using StreamReader reader = new(path);
